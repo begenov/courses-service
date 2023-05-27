@@ -7,6 +7,7 @@ import (
 	"github.com/begenov/courses-service/internal/domain"
 )
 
+//go:generate mockgen -source=repository.go -destination=mocks/mock.go
 type Courses interface {
 	Create(ctx context.Context, course domain.Courses) error
 	GetByID(ctx context.Context, id int) (domain.Courses, error)
