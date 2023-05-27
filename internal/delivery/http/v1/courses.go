@@ -159,9 +159,13 @@ func (h *Handler) getCoursesByIdStudent(ctx *gin.Context) {
 	})
 }
 
+var (
+	api = "http://localhost:8000/api/v1/students/"
+)
+
 func (h *Handler) getStudentsByCoursId(ctx *gin.Context) {
 	param := ctx.Param("id")
-	url := "http://localhost:8000/api/v1/students/" + param + "/students"
+	url := api + param + "/students"
 	resp, err := http.Get(url)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
