@@ -13,6 +13,7 @@ import (
 	"github.com/begenov/courses-service/internal/repository"
 	"github.com/begenov/courses-service/internal/server"
 	"github.com/begenov/courses-service/internal/service"
+	"github.com/begenov/courses-service/pkg/cache"
 	"github.com/begenov/courses-service/pkg/database"
 )
 
@@ -31,9 +32,14 @@ func main() {
 		log.Fatal(err)
 	}
 
+	memCache, err := cache.NewMemoryCache(context.Background(), cfg.Redis)
+	if err != nil {
+		log.Fatalf("error mem cache init: %v", err)
+	}
+
 	repos := repository.NewRepository(db)
 
-	service := service.NewService(repos)
+	service := service.NewService(repos, memCache, cfg.Redis.Ttl)
 
 	handler := delivery.NewHandler(service)
 
