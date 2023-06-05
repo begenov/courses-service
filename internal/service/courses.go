@@ -3,19 +3,26 @@ package service
 import (
 	"context"
 	"fmt"
+	"log"
+	"strconv"
 	"time"
 
 	"github.com/begenov/courses-service/internal/domain"
 	"github.com/begenov/courses-service/internal/repository"
+	"github.com/begenov/courses-service/pkg/cache"
 )
 
 type CoursesService struct {
-	repo repository.Courses
+	repo     repository.Courses
+	cache    cache.Cache
+	ttlCache time.Duration
 }
 
-func NewCoursesService(repo repository.Courses) *CoursesService {
+func NewCoursesService(repo repository.Courses, cache cache.Cache, ttlCache time.Duration) *CoursesService {
 	return &CoursesService{
-		repo: repo,
+		repo:     repo,
+		cache:    cache,
+		ttlCache: ttlCache,
 	}
 }
 
@@ -24,7 +31,26 @@ func (s *CoursesService) Create(ctx context.Context, course domain.Courses) erro
 }
 
 func (s *CoursesService) GetByID(ctx context.Context, id int) (domain.Courses, error) {
-	return s.repo.GetByID(ctx, id)
+	cachedCourses, err := s.cache.Get(ctx, "course:"+strconv.Itoa(id))
+
+	if err == nil {
+		cachedData, ok := cachedCourses.(domain.Courses)
+		if ok {
+			return cachedData, nil
+		}
+	}
+
+	student, err := s.repo.GetByID(ctx, id)
+
+	if err != nil {
+		return student, err
+	}
+
+	if err := s.cache.Set(ctx, "course:"+strconv.Itoa(id), student, s.ttlCache); err != nil {
+		log.Printf("error caching course with ID %d:", err)
+	}
+
+	return student, nil
 }
 
 func (s *CoursesService) Update(ctx context.Context, course domain.Courses) error {
