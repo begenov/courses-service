@@ -20,7 +20,7 @@ func (h *Handler) initCoursesRoutes(api *gin.RouterGroup) {
 		courses.POST("/create", h.createCourses)
 		courses.PUT("/:id/update", h.updateCourses)
 		courses.DELETE("/:id/delete", h.deleteCourse)
-		courses.GET("/:id/courses", h.getCoursesByIdStudent)
+		courses.GET("/:id/courses", h.getCoursesByStudentID)
 		courses.GET("/:id/students", h.getStudentsByCoursId)
 
 	}
@@ -143,7 +143,7 @@ func (h *Handler) deleteCourse(ctx *gin.Context) {
 	})
 }
 
-func (h *Handler) getCoursesByIdStudent(ctx *gin.Context) {
+func (h *Handler) getCoursesByStudentID(ctx *gin.Context) {
 	id := ctx.Param("id")
 
 	courses, err := h.service.Courses.GetCoursesByIdStudent(ctx, id)
@@ -165,6 +165,7 @@ var (
 
 func (h *Handler) getStudentsByCoursId(ctx *gin.Context) {
 	param := ctx.Param("id")
+
 	url := api + param + "/students"
 	resp, err := http.Get(url)
 	if err != nil {
