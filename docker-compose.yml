@@ -44,8 +44,6 @@ services:
   cache:
     restart: always
     image: redis:alpine
-    volumes: 
-      - ./pkg/cache
     networks:
       - internal
     ports:
@@ -53,5 +51,6 @@ services:
     environment:
       - HOST_REDIS=cache
       - PORT_REDIS=6379
+      
     
 
