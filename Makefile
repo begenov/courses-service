@@ -11,4 +11,8 @@ migrateup:
 
 migratedown:
 	migrate -path migration/ -database "postgresql://root:secret@localhost:5432/course?sslmode=disable" -verbose down
-.PHONY: postgres createbd dropdb migrateup migratedown
+
+createredis:
+	docker run --name test2 -p 6380:6379 -d redis
+
+.PHONY: postgres createbd dropdb migrateup migratedown createredis

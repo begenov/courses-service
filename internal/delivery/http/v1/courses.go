@@ -160,7 +160,7 @@ func (h *Handler) getCoursesByStudentID(ctx *gin.Context) {
 }
 
 var (
-	api = "http://student-service:8000/api/v1/students/"
+	api = "http://localhost:8000/api/v1/students/"
 )
 
 func (h *Handler) getStudentsByCoursId(ctx *gin.Context) {
