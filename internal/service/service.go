@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/begenov/courses-service/internal/domain"
 	"github.com/begenov/courses-service/internal/repository"
+	"github.com/begenov/courses-service/pkg/cache"
 	_ "github.com/golang/mock/mockgen/model"
 )
 
@@ -21,8 +23,8 @@ type Service struct {
 	Courses Courses
 }
 
-func NewService(repo *repository.Repository) *Service {
+func NewService(repo *repository.Repository, cache cache.Cache, ttl time.Duration) *Service {
 	return &Service{
-		Courses: NewCoursesService(repo.Courses),
+		Courses: NewCoursesService(repo.Courses, cache, ttl),
 	}
 }
