@@ -7,6 +7,7 @@ import (
 	"github.com/begenov/courses-service/internal/domain"
 	"github.com/begenov/courses-service/internal/repository"
 	"github.com/begenov/courses-service/pkg/cache"
+	"github.com/begenov/courses-service/pkg/kafka"
 	_ "github.com/golang/mock/mockgen/model"
 )
 
@@ -19,12 +20,21 @@ type Courses interface {
 	GetCoursesByIdStudent(ctx context.Context, studentId string) ([]domain.Courses, error)
 }
 
-type Service struct {
-	Courses Courses
+type Kafka interface {
+	SendMessages(topic string, message string) error
+	ConsumeMessages(topic string, handler func(message string)) error
+	// Read(ctx context.Context)
+	Close()
 }
 
-func NewService(repo *repository.Repository, cache cache.Cache, ttl time.Duration) *Service {
+type Service struct {
+	Courses Courses
+	Kafka   Kafka
+}
+
+func NewService(repo *repository.Repository, cache cache.Cache, ttl time.Duration, producer *kafka.Producer, concumer *kafka.Consumer) *Service {
 	return &Service{
 		Courses: NewCoursesService(repo.Courses, cache, ttl),
+		Kafka:   NewKafkaSerivce(producer, concumer, repo.Courses),
 	}
 }
