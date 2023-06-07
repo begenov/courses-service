@@ -15,6 +15,7 @@ import (
 	"github.com/begenov/courses-service/internal/service"
 	"github.com/begenov/courses-service/pkg/cache"
 	"github.com/begenov/courses-service/pkg/database"
+	"github.com/begenov/courses-service/pkg/kafka"
 )
 
 const (
@@ -37,10 +38,20 @@ func main() {
 		log.Fatalf("error mem cache init: %v", err)
 	}
 
+	producer, err := kafka.NewProducer(cfg.Kafka.Brokers)
+	if err != nil {
+		log.Fatalf("error creating Kafka producer: %v", err)
+	}
+
+	consumer, err := kafka.NewConsumer(cfg.Kafka.Brokers)
+	if err != nil {
+		log.Fatalf("error creating Kafka consumer: %v", err)
+	}
+
 	repos := repository.NewRepository(db)
 
-	service := service.NewService(repos, memCache, cfg.Redis.Ttl)
-
+	service := service.NewService(repos, memCache, cfg.Redis.Ttl, producer, consumer)
+	// go service.Kafka.Read(context.Background())
 	handler := delivery.NewHandler(service)
 
 	srv := server.NewServer(cfg, handler.Init())
