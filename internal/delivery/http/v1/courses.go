@@ -2,7 +2,6 @@ package v1
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
@@ -161,7 +160,6 @@ func (h *Handler) getCoursesByStudentID(ctx *gin.Context) {
 func (h *Handler) getStudentsByCoursId(ctx *gin.Context) {
 	param := ctx.Param("id")
 
-	// Отправляем сообщение в Kafka о запросе на получение студентов
 	message := param
 	err := h.service.Kafka.SendMessages("students-request", message)
 	if err != nil {
@@ -171,43 +169,7 @@ func (h *Handler) getStudentsByCoursId(ctx *gin.Context) {
 		return
 	}
 
-	// Create a channel to receive the response
-	responseCh := make(chan []byte)
-
-	handler := func(message string) {
-		defer close(responseCh) // Close the channel when done
-
-		if message == "" {
-			responseCh <- []byte(`{"error": "No Message"}`)
-			return
-		}
-
-		var resp domain.Response
-
-		if err := json.Unmarshal([]byte(message), &resp.Students); err != nil {
-			responseCh <- []byte(`{"error": "Failed to parse response message"}`)
-			return
-		}
-
-		// Marshal the response data
-		responseData, err := json.Marshal(resp.Students)
-		if err != nil {
-			responseCh <- []byte(`{"error": "Failed to marshal response data"}`)
-			return
-		}
-
-		responseCh <- responseData // Send the response data to the channel
-	}
-
-	go func() {
-		err = h.service.Kafka.ConsumeMessages("students-response", handler)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}()
-
-	// Wait for the response data from the channel
-	responseData := <-responseCh
+	responseData := <-h.service.Kafka.ResponseCh
 
 	ctx.Data(http.StatusOK, "application/json", responseData)
 }
