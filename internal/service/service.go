@@ -24,12 +24,13 @@ type Kafka interface {
 	SendMessages(topic string, message string) error
 	ConsumeMessages(topic string, handler func(message string)) error
 	// Read(ctx context.Context)
+	ConsumeResponseMessages()
 	Close()
 }
 
 type Service struct {
 	Courses Courses
-	Kafka   Kafka
+	Kafka   *KafkaService
 }
 
 func NewService(repo *repository.Repository, cache cache.Cache, ttl time.Duration, producer *kafka.Producer, concumer *kafka.Consumer) *Service {

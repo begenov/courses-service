@@ -8,15 +8,18 @@ import (
 )
 
 type KafkaService struct {
-	producer *kafka.Producer
-	consumer *kafka.Consumer
-	repo     repository.Courses
+	producer   *kafka.Producer
+	consumer   *kafka.Consumer
+	repo       repository.Courses
+	ResponseCh chan []byte
 }
 
 func NewKafkaSerivce(producer *kafka.Producer, consumer *kafka.Consumer, repo repository.Courses) *KafkaService {
 	return &KafkaService{
-		producer: producer,
-		consumer: consumer,
+		producer:   producer,
+		consumer:   consumer,
+		repo:       repo,
+		ResponseCh: make(chan []byte),
 	}
 }
 
@@ -30,45 +33,15 @@ func (s *KafkaService) SendMessages(topic string, message string) error {
 
 }
 
-/*
-	func (s *KafkaService) Read(ctx context.Context) {
-		for {
-			responseHandler := func(message string) {
-				// Добавьте здесь логику обработки ответа от Kafka
-
-				students, err := s.repo.GetCoursesByIdStudent(ctx, message)
-				if err != nil {
-
-					log.Println("Failed to send students to course:", err)
-					return
-				}
-
-				var buf bytes.Buffer
-				encoder := gob.NewEncoder(&buf)
-				err = encoder.Encode(students)
-				if err != nil {
-					log.Println("Failed to serialize student:", err)
-					return
-				}
-
-				m := buf.Bytes()
-
-				if err := s.producer.SendMessage("courses", string(m)); err != nil {
-					log.Println("Failed to send message:", err)
-					return
-
-				}
-			}
-
-			// Потребляем сообщения из Kafka
-			err := s.consumer.ConsumeMessages("students", responseHandler)
-			if err != nil {
-				log.Println("Failed to consume messages from Kafka:", err)
-				return
-			}
-		}
+func (s *KafkaService) ConsumeResponseMessages() {
+	err := s.consumer.ConsumeMessages("students-response", func(message string) {
+		s.ResponseCh <- []byte(message)
+	})
+	if err != nil {
+		log.Println(err)
 	}
-*/
+}
+
 func (s *KafkaService) ConsumeMessages(topic string, handler func(message string)) error {
 	err := s.consumer.ConsumeMessages(topic, handler)
 	if err != nil {
