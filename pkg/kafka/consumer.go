@@ -8,7 +8,7 @@ import (
 
 type Consumer struct {
 	consumer sarama.Consumer
-	done     chan struct{} // Channel to control the consumption process
+	done     chan struct{}
 }
 
 func NewConsumer(brokers []string) (*Consumer, error) {
@@ -47,8 +47,7 @@ func (c *Consumer) ConsumeMessages(topic string, handler func(message string)) e
 			defer pc.Close()
 
 			for message := range pc.Messages() {
-				// log.Println(string(message.Value))
-				// Обработка прочитанного сообщения
+
 				handler(string(message.Value))
 			}
 		}(pc)
@@ -62,7 +61,7 @@ func (c *Consumer) Stop() {
 }
 
 func (c *Consumer) Close() error {
-	c.Stop() // Stop the consumption process before closing the consumer
+	c.Stop()
 
 	if c.consumer != nil {
 		return c.consumer.Close()

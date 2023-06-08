@@ -15,17 +15,15 @@ type Producer struct {
 func NewProducer(brokers []string) (*Producer, error) {
 	config := sarama.NewConfig()
 
-	config.Producer.RequiredAcks = sarama.WaitForLocal       // Only wait for the leader to ack
-	config.Producer.Compression = sarama.CompressionSnappy   // Compress messages
-	config.Producer.Flush.Frequency = 500 * time.Millisecond // Flush batches every 500ms
+	config.Producer.RequiredAcks = sarama.WaitForLocal
+	config.Producer.Compression = sarama.CompressionSnappy
+	config.Producer.Flush.Frequency = 500 * time.Millisecond
 	fmt.Println(brokers)
 	producer, err := sarama.NewAsyncProducer(brokers, config)
 	if err != nil {
 		log.Fatalln("Failed to start Sarama producer:", err)
 	}
 
-	// We will just log to STDOUT if we're not able to produce messages.
-	// Note: messages will only be returned here after all retry attempts are exhausted.
 	go func() {
 		for err := range producer.Errors() {
 			log.Println("Failed to write access log entry:", err)
