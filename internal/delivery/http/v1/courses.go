@@ -173,12 +173,14 @@ func (h *Handler) getStudentsByCoursId(ctx *gin.Context) {
 }
 
 func (h *Handler) consumeResponseMessages() {
-	err := h.service.Kafka.ConsumeMessages("students-response", func(message string) {
-		h.responseCh <- []byte(message)
-	})
+	err := h.service.Kafka.ConsumeMessages("students-response", h.handleResponseMessage)
 	if err != nil {
 		log.Println(err)
 	}
+}
+
+func (h *Handler) handleResponseMessage(message string) {
+	h.responseCh <- []byte(message)
 }
 
 /*

@@ -1,8 +1,10 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"log"
+	"sync"
 
 	"github.com/Shopify/sarama"
 	"github.com/begenov/courses-service/internal/repository"
@@ -34,57 +36,65 @@ func (s *KafkaService) SendMessages(topic string, message string) error {
 	return nil
 
 }
-
 func (s *KafkaService) Read(ctx context.Context) {
 	partitions, err := s.consumer.Consumer.Partitions("courses-request")
 	if err != nil {
 		log.Fatalln("Failed to get partitions:", err)
 	}
 
+	var wg sync.WaitGroup
+	wg.Add(len(partitions))
+
 	for _, partition := range partitions {
 		pc, err := s.consumer.Consumer.ConsumePartition("courses-request", partition, sarama.OffsetNewest)
 		if err != nil {
 			log.Fatalln("Failed to start consumer for partition", partition, ":", err)
 		}
+
 		go func(pc sarama.PartitionConsumer) {
-			defer pc.Close()
+			defer func() {
+				pc.Close()
+				wg.Done()
+			}()
 
 			for message := range pc.Messages() {
-				id := ""
-				for _, v := range message.Value {
-					if v == '"' {
-						continue
-					}
-					id += string(v)
-				}
-				courses, err := s.repo.GetCoursesByIdStudent(ctx, id)
+				res := getStringWithoutQuotes(message.Value)
+
+				student, err := s.repo.GetCoursesByIdStudent(ctx, res)
 				if err != nil {
 					log.Println(err)
 					return
 				}
-				if err := s.producer.SendMessage("courses-response", courses); err != nil {
+
+				if err := s.producer.SendMessage("courses-response", student); err != nil {
 					log.Println(err, "send message")
 					return
 				}
-
 			}
 		}(pc)
 	}
-	<-ctx.Done()
 
+	wg.Wait()
 }
 
 func (s *KafkaService) ConsumeMessages(topic string, handler func(message string)) error {
-	err := s.consumer.ConsumeMessages(topic, handler)
-	if err != nil {
-		log.Println("Failed to consume messages from Kafka:", err)
-		return err
-	}
-
-	return nil
+	return s.consumer.ConsumeMessages(topic, handler)
 }
 
 func (s *KafkaService) Close() {
 	_ = s.consumer.Close()
 	_ = s.producer.Close()
+}
+
+func getStringWithoutQuotes(input []byte) string {
+	var buffer bytes.Buffer
+
+	for _, v := range input {
+		if v == '"' {
+			continue
+		}
+		buffer.WriteByte(v)
+	}
+
+	return buffer.String()
 }
