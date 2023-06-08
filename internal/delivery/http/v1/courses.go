@@ -160,8 +160,7 @@ func (h *Handler) getCoursesByStudentID(ctx *gin.Context) {
 func (h *Handler) getStudentsByCoursId(ctx *gin.Context) {
 	param := ctx.Param("id")
 
-	message := param
-	err := h.service.Kafka.SendMessages("students-request", message)
+	err := h.service.Kafka.SendMessages("students-request", param)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to get information about students",
