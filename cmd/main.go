@@ -52,7 +52,7 @@ func main() {
 
 	service := service.NewService(repos, memCache, cfg.Redis.Ttl, producer, consumer)
 	go service.Kafka.Read(context.Background())
-	// go service.Kafka.ConsumeResponseMessages()
+
 	handler := delivery.NewHandler(service)
 
 	srv := server.NewServer(cfg, handler.Init())
