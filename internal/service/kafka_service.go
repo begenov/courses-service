@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/Shopify/sarama"
@@ -37,9 +36,6 @@ func (s *KafkaService) SendMessages(topic string, message string) error {
 }
 
 func (s *KafkaService) Read(ctx context.Context) {
-
-	v, _ := s.consumer.Consumer.Topics()
-	fmt.Println(v, "--")
 	partitions, err := s.consumer.Consumer.Partitions("courses-request")
 	if err != nil {
 		log.Fatalln("Failed to get partitions:", err)
@@ -54,14 +50,14 @@ func (s *KafkaService) Read(ctx context.Context) {
 			defer pc.Close()
 
 			for message := range pc.Messages() {
-				res := ""
+				id := ""
 				for _, v := range message.Value {
 					if v == '"' {
 						continue
 					}
-					res += string(v)
+					id += string(v)
 				}
-				courses, err := s.repo.GetCoursesByIdStudent(ctx, res)
+				courses, err := s.repo.GetCoursesByIdStudent(ctx, id)
 				if err != nil {
 					log.Println(err)
 					return

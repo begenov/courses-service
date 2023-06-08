@@ -46,7 +46,6 @@ type RedisConfig struct {
 
 type KafkaConfig struct {
 	Brokers []string
-	Topic   string
 }
 
 func Init(path string) (*Config, error) {
@@ -67,7 +66,6 @@ func Init(path string) (*Config, error) {
 
 	brokerStr := os.Getenv("KAFKA_BROKERS")
 	brokers := strings.Split(brokerStr, ",")
-	topic := os.Getenv("KAFKA_TOPIC")
 
 	return &Config{
 		Server: serverConfig{
@@ -89,7 +87,6 @@ func Init(path string) (*Config, error) {
 		},
 		Kafka: KafkaConfig{
 			Brokers: brokers,
-			Topic:   topic,
 		},
 	}, nil
 }
