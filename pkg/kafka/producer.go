@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -35,17 +36,17 @@ func NewProducer(brokers []string) (*Producer, error) {
 	}, nil
 }
 
-func (p *Producer) SendMessage(topic string, data string) error {
+func (p *Producer) SendMessage(topic string, data interface{}) error {
 
-	// jsonData, err := json.Marshal(data)
-	// if err != nil {
-	// 	log.Fatalln("error json marsal", err)
-	// 	return err
-	// }
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		log.Fatalln("error json marsal", err)
+		return err
+	}
 
 	msg := &sarama.ProducerMessage{
 		Topic: topic,
-		Value: sarama.StringEncoder(data),
+		Value: sarama.StringEncoder(jsonData),
 	}
 
 	p.producer.Input() <- msg

@@ -7,26 +7,29 @@ import (
 )
 
 type Consumer struct {
-	consumer sarama.Consumer
+	Consumer sarama.Consumer
 	done     chan struct{}
 }
 
 func NewConsumer(brokers []string) (*Consumer, error) {
 	config := sarama.NewConfig()
 
+	config.Consumer.IsolationLevel = sarama.ReadCommitted
+	config.Consumer.Offsets.AutoCommit.Enable = false
+	config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRoundRobin
 	consumer, err := sarama.NewConsumer(brokers, config)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Consumer{
-		consumer: consumer,
+		Consumer: consumer,
 		done:     make(chan struct{}),
 	}, nil
 }
 
 func (c *Consumer) ConsumeMessages(topic string, handler func(message string)) error {
-	partitions, err := c.consumer.Partitions(topic)
+	partitions, err := c.Consumer.Partitions(topic)
 	if err != nil {
 		log.Println("Failed to retrieve partitions:", err)
 		return err
@@ -38,7 +41,7 @@ func (c *Consumer) ConsumeMessages(topic string, handler func(message string)) e
 	}
 
 	for _, partition := range partitions {
-		pc, err := c.consumer.ConsumePartition(topic, partition, sarama.OffsetNewest)
+		pc, err := c.Consumer.ConsumePartition(topic, partition, sarama.OffsetNewest)
 		if err != nil {
 			log.Println("Failed to start consumer for partition", partition, ":", err)
 			return err
@@ -63,8 +66,8 @@ func (c *Consumer) Stop() {
 func (c *Consumer) Close() error {
 	c.Stop()
 
-	if c.consumer != nil {
-		return c.consumer.Close()
+	if c.Consumer != nil {
+		return c.Consumer.Close()
 	}
 	return nil
 }
