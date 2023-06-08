@@ -51,7 +51,7 @@ func main() {
 	repos := repository.NewRepository(db)
 
 	service := service.NewService(repos, memCache, cfg.Redis.Ttl, producer, consumer)
-	// go service.Kafka.Read(context.Background())
+	go service.Kafka.Read(context.Background())
 	// go service.Kafka.ConsumeResponseMessages()
 	handler := delivery.NewHandler(service)
 
