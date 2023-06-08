@@ -169,9 +169,17 @@ func (h *Handler) getStudentsByCoursId(ctx *gin.Context) {
 		return
 	}
 
-	responseData := <-h.service.Kafka.ResponseCh
-
+	responseData := <-h.responseCh
 	ctx.Data(http.StatusOK, "application/json", responseData)
+}
+
+func (h *Handler) consumeResponseMessages() {
+	err := h.service.Kafka.ConsumeMessages("students-response", func(message string) {
+		h.responseCh <- []byte(message)
+	})
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 /*

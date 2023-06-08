@@ -33,15 +33,6 @@ func (s *KafkaService) SendMessages(topic string, message string) error {
 
 }
 
-func (s *KafkaService) ConsumeResponseMessages() {
-	err := s.consumer.ConsumeMessages("students-response", func(message string) {
-		s.ResponseCh <- []byte(message)
-	})
-	if err != nil {
-		log.Println(err)
-	}
-}
-
 func (s *KafkaService) ConsumeMessages(topic string, handler func(message string)) error {
 	err := s.consumer.ConsumeMessages(topic, handler)
 	if err != nil {
