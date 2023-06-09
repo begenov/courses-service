@@ -9,32 +9,26 @@ services:
     image: postgres:alpine
     volumes:
       - ./migration:/docker-entrypoint-initdb.d
-    networks:
-      - internal
     ports:
-      - 5432:5432
+      - 5434:5432
     environment:
-      - POSTGRES_DB=students
+      - POSTGRES_DB=course
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=secret
     command: postgres -c 'shared_preload_libraries='
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root -d students"]
+      test: ["CMD-SHELL", "pg_isready -U root -d course"]
       interval: 10s
       timeout: 5s
       retries: 5
   cache:
     restart: always
     image: redis:latest
-    volumes: 
-      - ./pkg/cache
-    networks:
-      - internal
     ports:
       - 6380:6379
     environment:
       - HOST_REDIS=cache
-      - PORT_REDIS=6379
+      - PORT_REDIS=6380
   zookeeper:
     hostname: zookeeper
     image: wurstmeister/zookeeper
