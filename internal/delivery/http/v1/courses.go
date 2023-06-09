@@ -180,6 +180,7 @@ func (h *Handler) consumeResponseMessages() {
 }
 
 func (h *Handler) handleResponseMessage(message string) {
+
 	h.responseCh <- []byte(message)
 }
 
