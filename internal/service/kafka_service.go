@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"log"
 	"sync"
 
@@ -58,6 +59,7 @@ func (s *KafkaService) Read(ctx context.Context) {
 			}()
 
 			for message := range pc.Messages() {
+				fmt.Println(message, "--")
 				res := getStringWithoutQuotes(message.Value)
 
 				student, err := s.repo.GetCoursesByIdStudent(ctx, res)
