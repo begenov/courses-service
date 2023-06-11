@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	defaultServerPort               = "8080"
+	defaultServerPort               = "8000"
 	defaultServerRWTimeout          = 10 * time.Second
 	defaultServerMaxHeaderMegabytes = 1
 	TTLCache                        = 24 * time.Hour * 30
