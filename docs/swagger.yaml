@@ -1,0 +1,227 @@
+basePath: /api/v1/
+definitions:
+  domain.Courses:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      students:
+        items:
+          type: string
+        type: array
+    type: object
+  v1.Resposne:
+    properties:
+      message:
+        type: string
+    type: object
+  v1.createCourses:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      students:
+        items:
+          type: string
+        type: array
+    required:
+    - description
+    - name
+    - students
+    type: object
+  v1.inputCourse:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      students:
+        items:
+          type: string
+        type: array
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: API Server for Courses Application
+  title: Courses  Service API
+  version: "1.0"
+paths:
+  /courses/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Create New Courses
+      parameters:
+      - description: course id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Courses'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.Resposne'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.Resposne'
+      summary: Get Course By ID
+      tags:
+      - Courses
+  /courses/{id}/courses:
+    get:
+      consumes:
+      - application/json
+      description: Get Courses By StudentID
+      parameters:
+      - description: course id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.Resposne'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.Resposne'
+      summary: Get Courses By StudentID
+      tags:
+      - Courses
+  /courses/{id}/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Course
+      parameters:
+      - description: course id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.Resposne'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.Resposne'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.Resposne'
+      summary: Delete Course
+      tags:
+      - Courses
+  /courses/{id}/students:
+    get:
+      consumes:
+      - application/json
+      description: Get Students By CoursId
+      parameters:
+      - description: course id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.Resposne'
+      summary: Get Students By CoursId
+      tags:
+      - Courses
+  /courses/{id}/update:
+    put:
+      consumes:
+      - application/json
+      description: Update Course
+      parameters:
+      - description: course update info
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/v1.inputCourse'
+      - description: course id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.Resposne'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.Resposne'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.Resposne'
+      summary: Update Course
+      tags:
+      - Courses
+  /courses/create:
+    post:
+      consumes:
+      - application/json
+      description: Create New Courses
+      parameters:
+      - description: Courses
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createCourses'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v1.Resposne'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.Resposne'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.Resposne'
+      summary: Create New Courses
+      tags:
+      - Courses
+swagger: "2.0"
