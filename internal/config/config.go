@@ -14,7 +14,7 @@ const (
 	defaultServerPort               = "8000"
 	defaultServerRWTimeout          = 10 * time.Second
 	defaultServerMaxHeaderMegabytes = 1
-	TTLCache                        = 24 * time.Hour * 30
+	TTLCache                        = 10 * time.Minute
 )
 
 type Config struct {
