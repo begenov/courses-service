@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/begenov/courses-service/internal/domain"
+
 	"github.com/lib/pq"
 )
 
