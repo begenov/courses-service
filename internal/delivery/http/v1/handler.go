@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/begenov/courses-service/internal/service"
+
 	"github.com/gin-gonic/gin"
 )
 
