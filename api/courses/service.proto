@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option go_package = "/courses-service/api/courses;courses";
+
+message Courses {
+    string name = 1;
+    string description = 2;
+    repeated string students = 3;
+  }

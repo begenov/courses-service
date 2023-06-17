@@ -8,8 +8,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/begenov/courses-service/internal/config"
 	delivery "github.com/begenov/courses-service/internal/delivery/http"
+
+	"github.com/begenov/courses-service/internal/config"
 	"github.com/begenov/courses-service/internal/repository"
 	"github.com/begenov/courses-service/internal/server"
 	"github.com/begenov/courses-service/internal/service"
@@ -22,6 +23,12 @@ const (
 	path = "./.env"
 )
 
+// @title Courses  Service API
+// @version 1.0
+// @description API Server for Courses Application
+
+// @host localhost:8000
+// @BasePath /api/v1/
 func main() {
 	cfg, err := config.Init(path)
 	if err != nil {

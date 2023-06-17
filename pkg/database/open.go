@@ -19,5 +19,4 @@ func OpenDB(driver string, dsn string) (*sql.DB, error) {
 	}
 
 	return db, nil
-
 }

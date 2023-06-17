@@ -15,4 +15,11 @@ migratedown:
 createredis:
 	docker run --name test2 -p 6380:6379 -d redis
 
+proto:
+	protoc --go_out=./pkg/course --go_opt=paths=source_relative \
+    --go-grpc_out=./api/courses --go-grpc_opt=paths=source_relative \
+    api/courses/service.proto
+
+
+
 .PHONY: postgres createbd dropdb migrateup migratedown createredis
